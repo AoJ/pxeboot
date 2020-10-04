@@ -64,13 +64,13 @@ goto boottype
 :fedora_development
 set dir fedora/linux/development/${devel_ver}/${arch}/os
 set repo repo=${mirror}/${dir}
-set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
+#set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
 goto fedora_setvars
 
 :fedora_rawhide
 set dir fedora/linux/development/rawhide/${arch}/os
 set repo repo=${mirror}/${dir}
-set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
+#set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
 # signature checking is disabled for development version
 set ver development
 goto fedora_setvars
@@ -79,14 +79,14 @@ goto fedora_setvars
 set ver ${devel_ver}_Alpha
 set dir fedora/linux/releases/test/${ver}/${fed_product}/${arch}/os
 set repo repo=${mirror}/${dir}
-set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
+#set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
 goto fedora_setvars
 
 :fedora_Beta
 set ver ${devel_ver}_Beta
 set dir fedora/linux/releases/test/${ver}/${fed_product}/${arch}/os
 set repo repo=${mirror}/${dir}
-set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
+#set params root=live:${mirror}/${dir}/LiveOS/squashfs.img ${params}
 goto fedora_setvars
 
 :fedora_live
