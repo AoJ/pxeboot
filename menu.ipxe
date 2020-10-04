@@ -285,6 +285,8 @@ item --key t root4max part=root=4,vg=vg1,swap=1 [t]
 item --key 4 root4 part=root=4,swap=1 [4]
 item --key 3 root3 part=root=3,swap=1 [3]
 item --key m homemax part=root=4,vg=vg1,swap=2,home=max [m]
+item --gap These are for EFI/UEFI systems
+item --key e efi part=efi=200m,root=6,swap=1 [e]
 item --gap These are for large disks (>=2 TB)
 item --key b biosboot part=biosboot=2m,root=4,swap=1 [b]
 item --key g gpt gpt part=biosboot=2m,root=4,swap=1 [g]
@@ -293,6 +295,7 @@ iseq ${autopart} root4max && set params ${params} part=root=4,vg=vg1,swap=1 ||
 iseq ${autopart} root4 && set params ${params} part=root=4,swap=1 ||
 iseq ${autopart} root3 && set params ${params} part=root=3,swap=1 ||
 iseq ${autopart} homemax && set params ${params} part=root=4,vg=vg1,swap=2,home=max ||
+iseq ${autopart} efi && set params ${params} part=efi=200m,root=6,swap=1 ||
 iseq ${autopart} biosboot && set params ${params} part=biosboot=2m,root=4,swap=1 ||
 iseq ${autopart} gpt && set params ${params} gpt part=biosboot=2m,root=4,swap=1 ||
 goto params_menu

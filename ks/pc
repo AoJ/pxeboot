@@ -47,6 +47,7 @@ install
 #part / --bytes-per-inode=4096 --fstype="ext4" --grow --size=1
 %packages --ignoremissing
 -@Base
+-@Base System
 dhclient
 openssh-clients
 openssh-server
@@ -84,8 +85,10 @@ else:
   from urllib2 import urlopen, HTTPError
 
 part_names = dict(
+  root='/',
   swap='swap',
   boot='/boot',
+  efi='/boot/efi',
   var='/var',
   home='/home',
   tmp='/tmp',
@@ -146,13 +149,13 @@ class mk_raid:
           args = ""
           if self.cntr==0:
             args += " --asprimary"
-          print("part raid.%d%d --size=%s --ondisk=%s%s" \
+          print("part raid.%d%d --size=%s --ondisk=%s%s"
                 % (self.cntr, i+1, s, self.disks[i], args))
           raids.append("raid.%d%d" % (self.cntr, i+1))
       return raids
   def add_raid1(self, name, s, fstype=""):
       raids = self.add(s)
-      print("raid %s --level=1 --device=md%d %s %s" \
+      print("raid %s --level=1 --device=md%d %s %s"
             % (name, self.cntr, fstype, " ".join(raids)))
   def add_vg(self, vg, s):
       self.add_raid1("pv.01", s)
@@ -183,10 +186,32 @@ def initdisks(disks):
     if 'zerombr' in cmd_line:
       print("zerombr")
     if disks:
-      print("clearpart --all --initlabel --drives=%s" \
+      print("clearpart --all --initlabel --drives=%s"
             % ','.join([x for x in disks if x]))
     else:
       print("clearpart --all --initlabel")
+
+class guess_fstype:
+  def __init__(self, key, value):
+      self.value = value
+      self.btrfs_name = ""
+      if ':' in value:
+        self.fstype = value.split(':', 1)[1]
+        self.value = value.split(':', 1)[0]
+      elif key=='swap':
+        self.fstype = ''
+      elif distro.startswith('el7') or distro.startswith('el8'):
+        self.fstype = "xfs"
+      #elif distro.startswith('fc33'):
+      #  self.fstype = "btrfs"
+      else:
+        self.fstype = "ext4"
+      if self.fstype=="btrfs":
+        self.btrfs_name = key
+  def arg(self):
+      if not self.fstype:
+        return ""
+      return "--fstype=%s" % self.fstype
 
 def autopartition(disks, parts):
     if distro.startswith('el7') or distro.startswith('el6'):
@@ -196,7 +221,7 @@ def autopartition(disks, parts):
     if disks and disks.startswith("iscsi:"):
       #print("ignoredisk --interactive")
       print("iscsiname iqn.2012-09.test")
-      print("iscsi --ipaddr=%s --target=%s --user=%s --password=%s" \
+      print("iscsi --ipaddr=%s --target=%s --user=%s --password=%s"
             % tuple(disks[6:].split(";", 3)))
       return
     if not parts:
@@ -211,53 +236,47 @@ def autopartition(disks, parts):
     if len(disks)==1:
       # one disk partition scheme
       disk0 = disks[0]
+      if parts:
+        initdisks(disks)
       for key, value in parts:
-        if ':' in value:
-          fstype = "--fstype=%s" % value.split(':', 1)[1]
-          value = value.split(':', 1)[0]
-        elif key=='swap':
-          fstype = ''
-        elif distro.startswith('el7') or distro.startswith('el8'):
-          fstype = '--fstype=xfs'
-        else:
-          fstype = '--fstype=ext4'
+        fstype = guess_fstype(key, value)
+        value = fstype.value
         if key=='vg':
           vg = value
           print("part pv.01 --ondisk=%s --size=1 --grow" % disk0)
           print("volgroup %s pv.01" % vg)
         elif key=='biosboot':
           biosboot = size(value)
-        elif key=='root':
-          initdisks(disks)
-          if biosboot>0:
-            print("part biosboot --fstype=biosboot --ondisk=%s --size=%d" \
-                  % (disk0, biosboot))
-          print("part / --ondisk=%s %s --size=%d" \
-                % (disk0, fstype, size(value)))
+          print("part biosboot --fstype=biosboot --ondisk=%s --size=%d"
+                % (disk0, biosboot))
         elif key in part_names:
           if vg:
-            print("logvol %s --vgname=%s --size=%s --name=%s %s" \
-                  % (part_names[key], vg, size(value), key, fstype))
+            print("logvol %s --vgname=%s --size=%s --name=%s %s"
+                  % (part_names[key], vg, size(value), key, fstype.arg()))
+          elif fstype.btrfs_name:
+            print("part btrfs.%s --ondisk=%s %s --size=%d"
+                  % (fstype.btrfs_name, disk0, fstype.arg(), size(value)))
           else:
-            print("part %s --ondisk=%s %s --size=%d" \
-                  % (part_names[key], disk0, fstype, size(value)))
+            print("part %s --ondisk=%s %s --size=%d"
+                  % (part_names[key], disk0, fstype.arg(), size(value)))
+        # btrfs needs more settings
+        if fstype.btrfs_name:
+          print("btrfs none --label=btrfs_%s btrfs.%s"
+                % (fstype.btrfs_name, fstype.btrfs_name))
+          print("btrfs %s --subvol --name=%s LABEL=btrfs_%s"
+                % (part_names[key], key, fstype.btrfs_name))
     elif len(disks)==2:
       # raid 1 partition scheme
       sum = spare # 1
       disk0 = disks[0]
       disk1 = disks[1]
       raid = mk_raid(disks)
+      if parts:
+        initdisks(disks)
       for key, value in parts:
-        if ':' in value:
-          fstype = "--fstype=%s" %value.split(':', 1)[1]
-          value = value.split(':', 1)[0]
-        elif key=='swap':
-          fstype = ''
-        elif distro.startswith('el7') or distro.startswith('el8'):
-          fstype = '--fstype=xfs'
-        else:
-          fstype = '--fstype=ext4'
-        print("# key, value, fstype:", key, value, fstype)
+        fstype = guess_fstype(key, value)
+        value = fstype.value
+        print("# key, value, fstype:", key, value, fstype.arg())
         if key=='vg':
           vg = value
           # calculate pv size
@@ -277,25 +296,23 @@ def autopartition(disks, parts):
           raid.add_vg(vg, "%d" % (disksize(*disks)-sum))
         elif key=='biosboot':
           biosboot = size(value)
-        elif key=='root':
-          initdisks(disks)
-          if biosboot>0:
-            print("part biosboot --fstype=biosboot --ondisk=%s --size=%d" \
-                   % (disk0, biosboot))
-            print("part biosboot --fstype=biosboot --ondisk=%s --size=%d" \
-                   % (disk1, biosboot))
-            sum += biosboot
-          s = size(value, disks, sum)
-          raid.add_part("/", s, fstype)
-          sum += s
+          print("part biosboot --fstype=biosboot --ondisk=%s --size=%d"
+                 % (disk0, biosboot))
+          print("part biosboot --fstype=biosboot --ondisk=%s --size=%d"
+                 % (disk1, biosboot))
+          sum += biosboot
         elif key in part_names:
+          s = 0
           if vg:
-            print("logvol %s --vgname=%s --size=%s --name=%s %s" \
-                  % (part_names[key], vg, size(value), key, fstype))
+            print("logvol %s --vgname=%s --size=%s --name=%s %s"
+                  % (part_names[key], vg, size(value), key, fstype.arg()))
+          elif fstype.btrfs_name:
+            s = size(value, disks, sum)
+            raid.add_part("btrfs.%s" % fstype.btrfs_name, s, fstype.arg())
           else:
             s = size(value, disks, sum)
-            raid.add_part(part_names[key], s, fstype)
-            sum += s
+            raid.add_part(part_names[key], s, fstype.arg())
+          sum += s
         print("# sum=%d kB" % sum)
 
 class repocfg_class:
