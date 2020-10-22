@@ -63,13 +63,12 @@ goto boot_bsd
 :netbsd
 set os NetBSD
 menu ${os} ${arch_a}
+item 9.1 ${os} 9.1
 item 9.0 ${os} 9.0
 item 8.2 ${os} 8.2
 item 8.1 ${os} 8.1
 item 8.0 ${os} 8.0
 item 7.2 ${os} 7.2
-item 7.1 ${os} 7.1
-item 7.0 ${os} 7.0
 item 6.1.5 ${os} 6.1.5
 item 6.0.4 ${os} 6.0.4
 item 5.2.2 ${os} 5.2.2
