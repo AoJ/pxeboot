@@ -104,14 +104,10 @@ goto boot_bsd
 :freebsd
 set os FreeBSD
 menu ${os}
+item 12.2 ${os} 12.2
 item 12.1 ${os} 12.1
 item 11.4 ${os} 11.4
-item 11.3 ${os} 11.3
-item 11.2 ${os} 11.2
-item 11.1 ${os} 11.1
 item 10.3 ${os} 10.3
-item 10.2 ${os} 10.2
-item 10.1 ${os} 10.1
 item 9.2 ${os} 9.2
 item 8.4 ${os} 8.4
 item other ${os} Choose other version

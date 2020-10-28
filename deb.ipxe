@@ -41,6 +41,9 @@ set os_lower ubuntu
 menu ${os} ${arch_a}
 # https://wiki.ubuntu.com/Releases
 item --gap Current (supported)
+# Ubuntu 20.10 doesn't support legacy-installer, so unable to use it
+# with all features from boot.salstar.sk. :-(
+#item --key g groovy ${os} 20.10 Groovy Gorilla [g]
 item --key f focal ${os} 20.04 LTS Focal Fossa [f]
 item --key e eoan ${os} 19.10 Eoan Ermine [e]
 item --key b bionic ${os} 18.04 LTS Bionic Beaver [b]
