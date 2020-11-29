@@ -281,23 +281,25 @@ goto params_menu
 :params_autopart
 set kp_default autopart
 menu Autopartition
-item --key t root4max part=root=4,vg=vg1,swap=1 [t]
+item --key t root8max part=root=8,vg=vg1,swap=1 [t]
+item --key 8 root8 part=root=8,swap=1 [8]
 item --key 4 root4 part=root=4,swap=1 [4]
 item --key 3 root3 part=root=3,swap=1 [3]
-item --key m homemax part=root=4,vg=vg1,swap=2,home=max [m]
+item --key m homemax part=root=8,vg=vg1,swap=2,home=max [m]
 item --gap These are for EFI/UEFI systems
 item --key e efi part=efi=200m,root=6,swap=1 [e]
 item --gap These are for large disks (>=2 TB)
-item --key b biosboot part=biosboot=2m,root=4,swap=1 [b]
-item --key g gpt gpt part=biosboot=2m,root=4,swap=1 [g]
+item --key b biosboot part=biosboot=2m,root=8,swap=1 [b]
+item --key g gpt gpt part=biosboot=2m,root=8,swap=1 [g]
 choose autopart || goto params_menu
-iseq ${autopart} root4max && set params ${params} part=root=4,vg=vg1,swap=1 ||
+iseq ${autopart} root8max && set params ${params} part=root=8,vg=vg1,swap=1 ||
+iseq ${autopart} root8 && set params ${params} part=root=8,swap=1 ||
 iseq ${autopart} root4 && set params ${params} part=root=4,swap=1 ||
 iseq ${autopart} root3 && set params ${params} part=root=3,swap=1 ||
-iseq ${autopart} homemax && set params ${params} part=root=4,vg=vg1,swap=2,home=max ||
+iseq ${autopart} homemax && set params ${params} part=root=8,vg=vg1,swap=2,home=max ||
 iseq ${autopart} efi && set params ${params} part=efi=200m,root=6,swap=1 ||
-iseq ${autopart} biosboot && set params ${params} part=biosboot=2m,root=4,swap=1 ||
-iseq ${autopart} gpt && set params ${params} gpt part=biosboot=2m,root=4,swap=1 ||
+iseq ${autopart} biosboot && set params ${params} part=biosboot=2m,root=8,swap=1 ||
+iseq ${autopart} gpt && set params ${params} gpt part=biosboot=2m,root=8,swap=1 ||
 goto params_menu
 
 :params_disks
@@ -321,9 +323,9 @@ set kp_default pkgs
 menu Package selection
 item --key b core Core salpack only [c]
 item --key g guestnrpe Guest with NRPE [g]
-item --key k kvmnrpe KVM host with NRPE [k]
 item --key w web Guest web server with mariadb and NRPE [w]
 item --key m mail Guest mail server with mariadb and NRPE [m]
+item --key k kvmnrpe KVM host with NRPE [k]
 item --key n nrpe Core and NRPE salpack [n]
 choose pkgs || goto params_menu
 iseq ${pkgs} core && set params ${params} pkgs=salpack ||

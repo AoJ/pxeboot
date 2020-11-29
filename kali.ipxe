@@ -10,6 +10,7 @@ item --key i installer ${os} Installer [i]
 choose kali_type || goto main_menu
 
 menu ${os} version
+item 2020.4 ${os} 2020.4
 item 2020.3 ${os} 2020.3
 item 2020.2 ${os} 2020.2
 item 2019.4 ${os} 2019.4

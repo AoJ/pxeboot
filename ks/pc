@@ -430,11 +430,11 @@ class repocfg_class:
 
 def lang(lang):
     if not lang:
-      lang = "sk_SK"
+      lang = "sk_SK --addsupport=en_US"
     langs = dict(
       en = "en_US",
-      sk = "sk_SK",
-      cs = "cs_CZ"
+      sk = "sk_SK --addsupport=en_US",
+      cs = "cs_CZ --addsupport=en_US"
     )
     if "_" not in lang and lang in langs:
       lang = langs[lang]
