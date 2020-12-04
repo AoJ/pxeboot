@@ -143,6 +143,7 @@ imgtrust --allow
 set dir ${menu}/${ver}/BaseOS/${arch}/os
 iseq ${ver} 7 && set dir ${menu}/${ver}/os/${arch} ||
 iseq ${ver} 6 && set dir ${menu}/${ver}/os/${arch} ||
+iseq ${ver} 6 && set mirror http://vault.centos.org/ ||
 set repo repo=${mirror}/${dir}
 set osks ${ksurl}centos${ver}
 set bootdev ksdevice=${ksdevice} BOOTIF=${mac}
