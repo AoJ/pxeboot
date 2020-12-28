@@ -59,7 +59,9 @@ iptables
 #joe
 #mc
 parted
+-subscription-manager
 -sendmail
+-timedatex
 %end
 
 %pre --interpreter /bin/bash
