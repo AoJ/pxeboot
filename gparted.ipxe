@@ -1,15 +1,18 @@
 #!ipxe
 
-# Works with latest gparted testing release only.
-# Requires vmalloc=256MiB for 32bit versions.
+# https://gparted.org/download.php
+# For 32bit versions requires "vmalloc=256MiB".
 
 iseq ${arch} x86_64 && set gp_arch amd64 || set gp_arch i686
 
 set os GParted
-menu Choose ${os}
-item 1.1.0-6 ${os} 1.1.0-6
-item 1.1.0-3 ${os} 1.1.0-3
-item 1.0.0-3 ${os} 1.0.0-3
+menu Choose ${os} ${gp_arch}
+item 1.2.0-1 ${os} 1.2.0-1
+item 1.1.0-8 ${os} 1.1.0-8
+item 1.0.0-5 ${os} 1.0.0-5
+item 0.33.0-2 ${os} 0.33.0-2
+#item 0.32.0-1 ${os} 0.32.0-1
+#item 0.31.0-1 ${os} 0.31.0-1
 item 0.30.0-1 ${os} 0.30.0-1
 item 0.29.0-1 ${os} 0.29.0-1
 item 0.28.1-1 ${os} 0.28.1-1

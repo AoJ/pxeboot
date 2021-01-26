@@ -199,19 +199,20 @@ goto bootos_${bt} ||
 goto bootos_images
 
 :bootos_images
-echo Loading from ${mirror}/${dir}/isolinux/
+iseq ${arch} armhfp && set imgdir images/pxeboot || set imgdir isolinux
+echo Loading from ${mirror}/${dir}/${imgdir}/
 echo ${}  ${repo}
 echo ${}  ${params}
 imgfree
 # load vmlinuz and initrd
-kernel ${mirror}/${dir}/isolinux/vmlinuz
+kernel ${mirror}/${dir}/${imgdir}/vmlinuz
 iseq ${ver} development && imgtrust --allow ||
 iseq ${ver} development && goto bootos_images_skip_verify_vmlinuz ||
-imgverify vmlinuz ${sigs}${dir}/isolinux/vmlinuz.sig
+imgverify vmlinuz ${sigs}${dir}/${imgdir}/vmlinuz.sig
 :bootos_images_skip_verify_vmlinuz
-initrd ${mirror}/${dir}/isolinux/initrd.img
+initrd ${mirror}/${dir}/${imgdir}/initrd.img
 iseq ${ver} development && goto bootos_images_skip_verify_initrd ||
-imgverify initrd.img ${sigs}${dir}/isolinux/initrd.img.sig
+imgverify initrd.img ${sigs}${dir}/${imgdir}/initrd.img.sig
 :bootos_images_skip_verify_initrd
 imgargs vmlinuz initrd=initrd.img ${repo} ${params}
 # use method= instad of repo= for CentOS 5
