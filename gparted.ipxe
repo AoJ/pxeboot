@@ -1,6 +1,7 @@
 #!ipxe
 
 # https://gparted.org/download.php
+# https://sourceforge.net/projects/gparted/files/gparted-live-stable/
 # For 32bit versions requires "vmalloc=256MiB".
 
 iseq ${arch} x86_64 && set gp_arch amd64 || set gp_arch i686
